@@ -1,16 +1,14 @@
 /**
- * Registers a new block provided a unique name and an object defining its behavior.
- *
- * @see https://developer.wordpress.org/block-editor/developers/block-api/#registering-a-block
- */
-import { registerBlockType } from '@wordpress/blocks';
-
-/**
  * Retrieves the translation of text.
  *
  * @see https://developer.wordpress.org/block-editor/packages/packages-i18n/
  */
 import { __ } from '@wordpress/i18n';
+import { InspectorControls } from '@wordpress/block-editor';
+import { PanelBody, ToggleControl } from '@wordpress/components';
+import { addFilter } from '@wordpress/hooks';
+import PropTypes from 'prop-types';
+
 
 /**
  * Lets webpack process CSS, SASS or SCSS files referenced in JavaScript files.
@@ -21,65 +19,86 @@ import { __ } from '@wordpress/i18n';
  */
 import './style.scss';
 
-/**
- * Internal dependencies
- */
-import Edit from './edit';
-import save from './save';
+console.log( 'Yo!!' )
+
+const filterBlocksEdit = ( BlockEdit ) => {
+	console.log( 'filterBlocksEdit' );
+	const EnhancedBlockEdit = function( props ) {
+		console.log( 'EnhancedBlockEdit', props );
+		const { attributes: { text, ampLayout }, setAttributes, name } = props;
+		let inspectorControls;
+		if ( 'core/image' === name ) {
+			inspectorControls = setUpImageInspectorControls( props );
+		}
+		return (
+			<>
+				<BlockEdit { ...props } />
+				{ inspectorControls }
+			</>
+		);
+	}
+
+	return EnhancedBlockEdit;
+}
+
+addFilter( 'editor.BlockEdit', 'nextImage/filterEdit', filterBlocksEdit, 20 );
 
 /**
- * Every block starts by registering a new block type definition.
+ * Set up inspector controls for Image block.
  *
- * @see https://developer.wordpress.org/block-editor/developers/block-api/#registering-a-block
+ * @param {Object}  props            Props.
+ * @param {boolean} props.isSelected Whether the current block has been selected or not.
+ *
+ * @return {Object} Inspector Controls.
  */
-registerBlockType( 'create-block/next-image-block', {
-	/**
-	 * @see https://make.wordpress.org/core/2020/11/18/block-api-version-2/
-	 */
-	apiVersion: 2,
+const setUpImageInspectorControls = ( props ) => {
+	const { isSelected } = props;
+	if ( ! isSelected ) {
+		return null;
+	}
 
-	/**
-	 * This is the display title for your block, which can be translated with `i18n` functions.
-	 * The block inserter will show this name.
-	 */
-	title: __( 'Next Image Block', 'next-image-block' ),
+	return (
+		<InspectorControls>
+			<PanelBody title={ __( 'Next Image Settings', 'next/image' ) }>
+				<NextImageEnabledToggle { ...props }/>
+			</PanelBody>
+		</InspectorControls>
+	);
+};
 
-	/**
-	 * This is a short description for your block, can be translated with `i18n` functions.
-	 * It will be shown in the Block Tab in the Settings Sidebar.
-	 */
-	description: __(
-		'Example block written with ESNext standard and JSX support – build step required.',
-		'next-image-block'
-	),
 
-	/**
-	 * Blocks are grouped into categories to help users browse and discover them.
-	 * The categories provided by core are `common`, `embed`, `formatting`, `layout` and `widgets`.
-	 */
-	category: 'widgets',
+const NextImageEnabledToggle = ( props ) => {
+	const { attributes: { nextImageEnabled }, setAttributes } = props;
 
-	/**
-	 * An icon property should be specified to make it easier to identify a block.
-	 * These can be any of WordPress’ Dashicons, or a custom svg element.
-	 */
-	icon: 'smiley',
+	return (
+		<ToggleControl
+			label={ __( 'Enable next/image features', 'next/image' ) }
+			checked={ nextImageEnabled }
+			onChange={ () => {
+				setAttributes( { nextImageEnabled: ! nextImageEnabled } );
+			} }
+		/>
+	);
+};
 
-	/**
-	 * Optional block extended support features.
-	 */
-	supports: {
-		// Removes support for an HTML mode.
-		html: false,
-	},
+NextImageEnabledToggle.propTypes = {
+	attributes: PropTypes.shape( {
+		nextImageEnabled: PropTypes.string,
+	} ),
+	setAttributes: PropTypes.func.isRequired,
+};
 
-	/**
-	 * @see ./edit.js
-	 */
-	edit: Edit,
+const addNextImageAttributes = ( settings, name ) => {
+	if ( 'core/image' === name ) {
+		if ( ! settings.attributes ) {
+			settings.attributes = {};
+		}
+		settings.attributes.nextImageEnabled = {
+			type: 'boolean',
+			default: false,
+		};
+	}
+	return settings;
+}
 
-	/**
-	 * @see ./save.js
-	 */
-	save,
-} );
+addFilter( 'blocks.registerBlockType', 'nextImage/addAttributes', addNextImageAttributes );

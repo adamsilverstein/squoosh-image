@@ -7,6 +7,7 @@
 	"main": "build/index.js",
 	"scripts": {
 		"build": "wp-scripts build",
+		"watch": "wp-scripts build --watch",
 		"format:js": "wp-scripts format-js",
 		"lint:css": "wp-scripts lint-style",
 		"lint:js": "wp-scripts lint-js",
@@ -14,11 +15,14 @@
 		"packages-update": "wp-scripts packages-update"
 	},
 	"dependencies": {
-		"@wordpress/block-editor": "^5.2.1",
 		"@wordpress/blocks": "^6.25.1",
-		"@wordpress/i18n": "^3.17.0"
+		"next": "^10.0.5"
 	},
 	"devDependencies": {
+		"@wordpress/block-editor": "^5.2.2",
+		"@wordpress/components": "^12.0.2",
+		"@wordpress/hooks": "^2.11.0",
+		"@wordpress/i18n": "^3.17.0",
 		"@wordpress/scripts": "^12.6.1"
 	}
 }
