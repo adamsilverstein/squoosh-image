@@ -33,8 +33,8 @@ export default function Edit() {
 	return (
 		<p { ...useBlockProps() }>
 			{ __(
-				'Next Image Block – hello from the editor!',
-				'next-image-block'
+				'Squoosh Image – hello from the editor!',
+				'squoosh-image'
 			) }
 		</p>
 	);
