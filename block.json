@@ -1,11 +1,11 @@
 {
 	"apiVersion": 2,
-	"name": "create-block/next-image-block",
-	"title": "Next Image Block",
+	"name": "create-block/squoosh-image",
+	"title": "Squoosh Image",
 	"category": "widgets",
 	"icon": "smiley",
 	"description": "Example block written with ESNext standard and JSX support – build step required.",
-	"textdomain": "next-image-block",
+	"textdomain": "squoosh-image",
 	"supports": {
 		"html": false
 	},

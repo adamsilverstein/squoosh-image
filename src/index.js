@@ -9,6 +9,8 @@ import { PanelBody, ToggleControl } from '@wordpress/components';
 import { addFilter } from '@wordpress/hooks';
 import PropTypes from 'prop-types';
 
+import { ImagePool } from "@squoosh/lib";
+
 
 /**
  * Lets webpack process CSS, SASS or SCSS files referenced in JavaScript files.
@@ -52,38 +54,58 @@ addFilter( 'editor.BlockEdit', 'nextImage/filterEdit', filterBlocksEdit, 20 );
  * @return {Object} Inspector Controls.
  */
 const setUpImageInspectorControls = ( props ) => {
-	const { isSelected } = props;
+	const { isSelected , AVIFImageEnabled} = props;
+	const { attributes: { status }, setAttributes } = props;
+
 	if ( ! isSelected ) {
 		return null;
 	}
 
+	// If AVIF is enabled and the images haven't been generated, then generate them.
+	if ( AVIFImageEnabled && status != 'generated' ) {
+		setAttributes( { status: 'generating' } );
+		generateImages( props );
+	}
+
 	return (
 		<InspectorControls>
-			<PanelBody title={ __( 'Next Image Settings', 'next/image' ) }>
-				<NextImageEnabledToggle { ...props }/>
+			<PanelBody title={ __( 'Next Image Settings', 'squoosh/image' ) }>
+				<AVIFImageEnabledToggle { ...props }/>
+				{ status && status }
 			</PanelBody>
 		</InspectorControls>
 	);
 };
 
+const generateImages= ( props ) => {
+	const { attributes: { images }, setAttributes } = props;
+	if ( ! images[ 'avif' ] ) {
+		const ImagePool = new ImagePool();
+		console.log( props );
+		const image = imagePool.ingestImage("./squoosh.jpeg");
 
-const NextImageEnabledToggle = ( props ) => {
-	const { attributes: { nextImageEnabled }, setAttributes } = props;
+	}
+
+}
+
+
+const AVIFImageEnabledToggle = ( props ) => {
+	const { attributes: { AVIFImageEnabled }, setAttributes } = props;
 
 	return (
 		<ToggleControl
-			label={ __( 'Enable next/image features', 'next/image' ) }
-			checked={ nextImageEnabled }
+			label={ __( 'Save in AVIF format', 'squoosh/image' ) }
+			checked={ AVIFImageEnabled }
 			onChange={ () => {
-				setAttributes( { nextImageEnabled: ! nextImageEnabled } );
+				setAttributes( { AVIFImageEnabled: ! AVIFImageEnabled } );
 			} }
 		/>
 	);
 };
 
-NextImageEnabledToggle.propTypes = {
+AVIFImageEnabledToggle.propTypes = {
 	attributes: PropTypes.shape( {
-		nextImageEnabled: PropTypes.string,
+		AVIFImageEnabled: PropTypes.string,
 	} ),
 	setAttributes: PropTypes.func.isRequired,
 };
@@ -93,7 +115,7 @@ const addNextImageAttributes = ( settings, name ) => {
 		if ( ! settings.attributes ) {
 			settings.attributes = {};
 		}
-		settings.attributes.nextImageEnabled = {
+		settings.attributes.AVIFImageEnabled = {
 			type: 'boolean',
 			default: false,
 		};

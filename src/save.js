@@ -26,8 +26,8 @@ export default function save() {
 	return (
 		<p { ...useBlockProps.save() }>
 			{ __(
-				'Next Image Block – hello from the saved content!',
-				'next-image-block'
+				'Squoosh Image – hello from the saved content!',
+				'squoosh-image'
 			) }
 		</p>
 	);
